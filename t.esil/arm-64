@@ -457,3 +457,70 @@ ar x0
 EXPECT='0x00000100
 '
 run_test
+
+NAME="stp tests"
+#            0x00000000  ~   000500a9       stp x0, x1, [x8]
+#            0x00000004  ~   000501a9       stp x0, x1, [x8, 0x10]
+#            0x00000008      020d82a9       stp x2, x3, [x8, 0x20]!
+#            0x0000000c      08410091       add x8, x8, 0x10
+#            0x00000010      041581a8       stp x4, x5, [x8], 0x10
+FILE=malloc://0x200
+BROKEN=1
+CMDS='
+e asm.arch=arm
+e asm.bits=64
+ar > /dev/null
+aer x0=0
+aer x1=1
+aer x2=2
+aer x3=3
+aer x4=4
+aer x5=5
+aer x8=0x100
+wx 000500a9000501a9020d82a908410091041581a8
+5aes
+px 64 @0x100; ar x8
+'
+EXPECT='- offset -   0 1  2 3  4 5  6 7  8 9  A B  C D  E F  0123456789ABCDEF
+0x00000100  0000 0000 0000 0000 0100 0000 0000 0000  ................
+0x00000110  0000 0000 0000 0000 0100 0000 0000 0000  ................
+0x00000120  0200 0000 0000 0000 0300 0000 0000 0000  ................
+0x00000130  0400 0000 0000 0000 0500 0000 0000 0000  ................
+0x00000140
+'
+run_test
+
+NAME="ldp tests"
+#            0x00000000  ~   000500a9       stp x0, x1, [x8]
+#            0x00000004  ~   020d01a9       stp x2, x3, [x8, 0x10]
+#            0x00000008      041502a9       stp x4, x5, [x8, 0x20]
+#            0x0000000c      08810091       add x8, x8, 0x20
+#            0x00000010      0415ffa8       ldp x4, x5, [x8], -0x10
+#            0x00000014      020d40a9       ldp x2, x3, [x8]
+#            0x00000018      0005ffa9       ldp x0, x1, [x8, -0x10]!
+FILE=malloc://0x200
+BROKEN=1
+CMDS='
+e asm.arch=arm
+e asm.bits=64
+ar > /dev/null
+aer x0=0
+aer x1=1
+aer x2=2
+aer x3=3
+aer x4=4
+aer x5=5
+aer x8=0x100
+wx 000500a9020d01a9041502a9088100910415ffa8020d40a90005ffa9
+7aes
+ar x0; ar x1; ar x2; ar x3; ar x4; ar x5; 
+'
+EXPECT='0x00000000
+0x00000001
+0x00000002
+0x00000003
+0x00000004
+0x00000005
+'
+run_test
+
