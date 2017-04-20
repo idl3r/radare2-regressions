@@ -409,3 +409,51 @@ EXPECT='0x00000000
 '
 run_test
 
+NAME="b 0x174"
+FILE=malloc://0x200
+BROKEN=1
+CMDS='
+e asm.arch=arm
+e asm.bits=64
+ar > /dev/null
+wx 000000915c000014
+2aes
+ar pc
+'
+EXPECT='0x00000174
+'
+run_test
+
+NAME="cmp x0, x1; b.le 0x14"
+FILE=malloc://0x200
+BROKEN=1
+CMDS='
+e asm.arch=arm
+e asm.bits=64
+ar > /dev/null
+wx 400080d2210080d21f0001eb4d000054
+4aes
+ar pc
+'
+EXPECT='0x00000010
+'
+run_test
+
+NAME="subs x0, x0, x1; csel x0, x2, x3, mi"
+FILE=malloc://0x200
+BROKEN=1
+CMDS='
+e asm.arch=arm
+e asm.bits=64
+ar > /dev/null
+aer x0=0
+aer x1=1
+aer x2=0x100
+aer x3=0x200
+wx 000001eb4040839a
+2aes
+ar x0
+'
+EXPECT='0x00000100
+'
+run_test
